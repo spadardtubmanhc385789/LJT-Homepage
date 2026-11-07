@@ -32,17 +32,17 @@ jobs:
           JEKYLL_ENV: production
       - name: Inspect rendered content
         run: |
-          echo "Built index pages:"
-          find _site -name 'index.html' | sort
-          echo "About page section headings:"
-          grep -o '<h2 id="[^"]*"' _site/index.html
-          echo "About page personal details:"
-          grep -o 'jliugi@connect.ust.hk\|Vicent0205\|junteng88716710\|MINIMAX\|Zhiyuan Honor Scholarship' _site/index.html | sort | uniq -c
-          echo "Publication entries on publications page:"
-          grep -c 'archive__item-title' _site/publications/index.html
-          echo "Publication titles on publications page:"
-          grep -o '<h2 class="archive__item-title"[^>]*>.\{0,180\}' _site/publications/index.html
-          echo "Publication entries on CV page:"
-          grep -c 'archive__item-title' _site/cv/index.html
-          echo "Sidebar avatar element (should be empty):"
-          grep -o 'author__avatar' _site/index.html || true
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          titles = ['SynLogic', 'Perception Bottleneck', 'Universal Truthfulness', 'In-Context Sharpness', 'C-Eval', 'Composing Parameter-Efficient']
+          contact = ['jliugi@connect.ust.hk', 'Vicent0205', 'junteng88716710', 'scholar.google.com']
+          for name in ['_site/index.html', '_site/publications/index.html', '_site/cv/index.html']:
+              text = Path(name).read_text()
+              print('FILE', name, 'chars', len(text))
+              print('HEADINGS', re.findall(r'<h2[^>]*>(.{0,120}?)</h2>', text))
+              print('PUBLICATIONS', {t: text.count(t) for t in titles})
+              print('CONTACT', {t: text.count(t) for t in contact})
+              print('SIDEBAR_AVATAR', 'author__avatar' in text)
+              print('SAMPLE', text[max(0, text.find('<h2') - 120):text.find('<h2') + 400] if '<h2' in text else 'no h2 found')
+          PY
