@@ -30,3 +30,19 @@ jobs:
         run: bundle exec jekyll build --baseurl "/LJT-Homepage"
         env:
           JEKYLL_ENV: production
+      - name: Inspect rendered content
+        run: |
+          echo "Built index pages:"
+          find _site -name 'index.html' | sort
+          echo "About page section headings:"
+          grep -o '<h2 id="[^"]*"' _site/index.html
+          echo "About page personal details:"
+          grep -o 'jliugi@connect.ust.hk\|Vicent0205\|junteng88716710\|MINIMAX\|Zhiyuan Honor Scholarship' _site/index.html | sort | uniq -c
+          echo "Publication entries on publications page:"
+          grep -c 'archive__item-title' _site/publications/index.html
+          echo "Publication titles on publications page:"
+          grep -o '<h2 class="archive__item-title"[^>]*>.\{0,180\}' _site/publications/index.html
+          echo "Publication entries on CV page:"
+          grep -c 'archive__item-title' _site/cv/index.html
+          echo "Sidebar avatar element (should be empty):"
+          grep -o 'author__avatar' _site/index.html || true
