@@ -35,14 +35,13 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re
-          titles = ['SynLogic', 'Perception Bottleneck', 'Universal Truthfulness', 'In-Context Sharpness', 'C-Eval', 'Composing Parameter-Efficient']
-          contact = ['jliugi@connect.ust.hk', 'Vicent0205', 'junteng88716710', 'scholar.google.com']
-          for name in ['_site/index.html', '_site/publications/index.html', '_site/cv/index.html']:
-              text = Path(name).read_text()
-              print('FILE', name, 'chars', len(text))
-              print('HEADINGS', re.findall(r'<h2[^>]*>(.{0,120}?)</h2>', text))
-              print('PUBLICATIONS', {t: text.count(t) for t in titles})
-              print('CONTACT', {t: text.count(t) for t in contact})
-              print('SIDEBAR_AVATAR', 'author__avatar' in text)
-              print('SAMPLE', text[max(0, text.find('<h2') - 120):text.find('<h2') + 400] if '<h2' in text else 'no h2 found')
+          text = Path('_site/index.html').read_text()
+          print('ABOUT HEADINGS', [re.sub(r'\s+', ' ', h) for h in re.findall(r'<h2[^>]*>(.*?)</h2>', text, re.S)])
+          for phrase in ['Research Interests', 'Education', 'Research Experience', 'Publications', 'Skills', 'Honors', 'Contact Information']:
+              position = text.find(phrase)
+              print(phrase, 'FOUND' if position >= 0 else 'MISSING')
+          publications = Path('_site/publications/index.html').read_text()
+          print('VENUES', re.findall(r'Published in <i>(.*?)</i>, (\d{4})', publications))
+          print('AUTHOR HIGHLIGHTING', publications.count('<strong>Junteng Liu</strong>'))
+          print('BROKEN DEMO LINKS', [s for s in ['paper1.pdf', 'paper2.pdf', 'paper3.pdf', 'slides1.pdf', 'talkmap'] if s in publications])
           PY
